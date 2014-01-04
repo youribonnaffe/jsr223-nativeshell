@@ -1,0 +1,16 @@
+apply plugin: 'java'
+apply plugin: 'maven'
+
+version = '0.1'
+group = 'jsr223'
+
+defaultTasks 'jar'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testCompile group: 'junit', name: 'junit', version: '4.11'
+    testCompile group: 'commons-io', name: 'commons-io', version: '1.4'
+}
