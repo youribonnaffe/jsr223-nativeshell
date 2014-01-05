@@ -18,13 +18,14 @@ public class OutputEater extends ExternalResource {
         tmpFolder.create();
         outputFile = tmpFolder.newFile();
         errFile = tmpFolder.newFile();
-        Bash.redirectOutput = ProcessBuilder.Redirect.to(outputFile);
-        Bash.redirectErr = ProcessBuilder.Redirect.to(errFile);
+        Bash.redirectOutput = ProcessBuilder.Redirect.appendTo(outputFile);
+        Bash.redirectErr = ProcessBuilder.Redirect.appendTo(errFile);
     }
 
     @Override
     protected void after() {
         Bash.redirectOutput = ProcessBuilder.Redirect.INHERIT;
+        Bash.redirectErr = ProcessBuilder.Redirect.INHERIT;
         tmpFolder.delete();
     }
 

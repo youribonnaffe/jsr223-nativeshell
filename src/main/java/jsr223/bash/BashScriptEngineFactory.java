@@ -38,7 +38,7 @@ public class BashScriptEngineFactory implements ScriptEngineFactory {
 
     @Override
     public List<String> getExtensions() {
-        return asList("sh");
+        return asList("sh", "bash");
     }
 
     @Override
@@ -48,7 +48,7 @@ public class BashScriptEngineFactory implements ScriptEngineFactory {
 
     @Override
     public List<String> getNames() {
-        return asList("bash", "sh");
+        return asList("bash", "sh", "Bash");
     }
 
     @Override
