@@ -1,5 +1,6 @@
-package jsr223.bash;
+package jsr223;
 
+import jsr223.bash.Bash;
 import org.apache.commons.io.FileUtils;
 import org.junit.rules.ExternalResource;
 import org.junit.rules.TemporaryFolder;

@@ -1,7 +1,13 @@
-jsr223-bash
+jsr223-nativeshell
 ===========
 
-A Bash Script Engine for Java implementing JSR 223
+Native shell script engines for Java implementing JSR 223
+
+Supported native shells
+---------
+
+* Bash: using the name bash or the extensions .bash/.sh
+* Cmd.exe: using the name cmd or the extension .bat
 
 Usage
 -----
@@ -16,7 +22,7 @@ Run gradlew script, it will produce a JAR file in build/libs
 How it works
 ------------
 
-It simply runs a Bash process with your script (bash -c).
+It simply runs the shell as a native process and pass it your script (bash -c or cmd.exe /c).
 Script bindings should be accessible as environment variables.
 
 To do

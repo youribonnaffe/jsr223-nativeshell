@@ -1,4 +1,4 @@
-package jsr223.bash;
+package jsr223;
 
 import java.io.InputStream;
 import java.io.Reader;

@@ -1,14 +1,14 @@
-package jsr223.bash;
+package jsr223.cmd;
 
 import jsr223.IOUtils;
 
 import javax.script.*;
 import java.io.Reader;
 
-public class BashScriptEngine extends AbstractScriptEngine {
+public class CmdScriptEngine extends AbstractScriptEngine {
     @Override
     public Object eval(String script, ScriptContext context) throws ScriptException {
-        return Bash.run(script, context.getBindings(ScriptContext.ENGINE_SCOPE)).getReturnCode();
+        return Cmd.run(script, context.getBindings(ScriptContext.ENGINE_SCOPE)).getReturnCode();
     }
 
     @Override
@@ -23,6 +23,6 @@ public class BashScriptEngine extends AbstractScriptEngine {
 
     @Override
     public ScriptEngineFactory getFactory() {
-        return new BashScriptEngineFactory();
+        return new CmdScriptEngineFactory();
     }
 }

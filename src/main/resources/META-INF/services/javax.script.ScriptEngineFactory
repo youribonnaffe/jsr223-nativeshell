@@ -1,1 +1,2 @@
 jsr223.bash.BashScriptEngineFactory
+jsr223.cmd.CmdScriptEngineFactory
