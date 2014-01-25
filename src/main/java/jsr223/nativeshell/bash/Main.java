@@ -1,4 +1,6 @@
-package jsr223.cmd;
+package jsr223.nativeshell.bash;
+
+import jsr223.nativeshell.NativeShellScriptEngine;
 
 import javax.script.ScriptException;
 
@@ -9,7 +11,7 @@ public class Main {
         for (String arg : args) {
             script += arg + " ";
         }
-        Object returnCode = new CmdScriptEngine().eval(script);
+        Object returnCode = new NativeShellScriptEngine(new Bash()).eval(script);
         System.exit((Integer) returnCode);
     }
 }

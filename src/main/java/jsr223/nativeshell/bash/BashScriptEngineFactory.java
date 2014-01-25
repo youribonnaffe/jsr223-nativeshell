@@ -1,4 +1,7 @@
-package jsr223.cmd;
+package jsr223.nativeshell.bash;
+
+import jsr223.nativeshell.NativeShellRunner;
+import jsr223.nativeshell.NativeShellScriptEngine;
 
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineFactory;
@@ -8,13 +11,13 @@ import java.util.Map;
 
 import static java.util.Arrays.asList;
 
-public class CmdScriptEngineFactory implements ScriptEngineFactory {
+public class BashScriptEngineFactory implements ScriptEngineFactory {
 
-    private static final String NAME = "cmd";
-    private static final String ENGINE = "Cmd interpreter";
-    private static final String ENGINE_VERSION = Cmd.getInstalledVersion();
-    private static final String LANGUAGE = "Cmd";
-    private static final String LANGUAGE_VERSION = Cmd.getMajorVersion();
+    private static final String NAME = "bash";
+    private static final String ENGINE = "Bash interpreter";
+    private static final String ENGINE_VERSION = new NativeShellRunner(new Bash()).getInstalledVersion();
+    private static final String LANGUAGE = "Bash";
+    private static final String LANGUAGE_VERSION = new NativeShellRunner(new Bash()).getMajorVersion();
 
     private static final Map<String, Object> parameters = new HashMap<String, Object>();
 
@@ -38,18 +41,17 @@ public class CmdScriptEngineFactory implements ScriptEngineFactory {
 
     @Override
     public List<String> getExtensions() {
-        return asList("bat");
+        return asList("sh", "bash");
     }
 
     @Override
     public List<String> getMimeTypes() {
-        return asList("application/x-cmd", "application/x-bat", "application/bat",
-                "application/x-msdos-program", "application/textedit", "application/octet-stream");
+        return asList("application/x-sh", "application/x-bash");
     }
 
     @Override
     public List<String> getNames() {
-        return asList("cmd", "bat", "Cmd", "Bat");
+        return asList("bash", "sh", "Bash");
     }
 
     @Override
@@ -78,12 +80,12 @@ public class CmdScriptEngineFactory implements ScriptEngineFactory {
 
     @Override
     public String getOutputStatement(String toDisplay) {
-        return "echo " + toDisplay;
+        return "echo -n " + toDisplay;
     }
 
     @Override
     public String getProgram(String... statements) {
-        String program = "";
+        String program = "#!/bin/bash\n";
         for (String statement : statements) {
             program += statement + "\n";
         }
@@ -92,6 +94,6 @@ public class CmdScriptEngineFactory implements ScriptEngineFactory {
 
     @Override
     public ScriptEngine getScriptEngine() {
-        return new CmdScriptEngine();
+        return new NativeShellScriptEngine(new Bash());
     }
 }

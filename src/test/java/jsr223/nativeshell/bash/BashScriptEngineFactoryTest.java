@@ -1,4 +1,4 @@
-package jsr223.bash;
+package jsr223.nativeshell.bash;
 
 import org.junit.Test;
 

@@ -1,14 +1,19 @@
-package jsr223.bash;
-
-import jsr223.IOUtils;
+package jsr223.nativeshell;
 
 import javax.script.*;
 import java.io.Reader;
 
-public class BashScriptEngine extends AbstractScriptEngine {
+public class NativeShellScriptEngine extends AbstractScriptEngine {
+
+    private NativeShell nativeShell;
+
+    public NativeShellScriptEngine(NativeShell nativeShell) {
+        this.nativeShell = nativeShell;
+    }
+
     @Override
     public Object eval(String script, ScriptContext context) throws ScriptException {
-        return Bash.run(script, context.getBindings(ScriptContext.ENGINE_SCOPE)).getReturnCode();
+        return new NativeShellRunner(nativeShell).run(script, context);
     }
 
     @Override
@@ -23,6 +28,6 @@ public class BashScriptEngine extends AbstractScriptEngine {
 
     @Override
     public ScriptEngineFactory getFactory() {
-        return new BashScriptEngineFactory();
+        return nativeShell.getScriptEngineFactory();
     }
 }

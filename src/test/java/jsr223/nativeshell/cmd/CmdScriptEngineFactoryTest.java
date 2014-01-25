@@ -1,4 +1,4 @@
-package jsr223.cmd;
+package jsr223.nativeshell.cmd;
 
 import org.junit.Test;
 
