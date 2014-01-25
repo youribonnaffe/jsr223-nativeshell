@@ -22,12 +22,5 @@ Run gradlew script, it will produce a JAR file in build/libs
 How it works
 ------------
 
-It simply runs the shell as a native process and pass it your script (bash -c or cmd.exe /c).
+It simply runs the shell as a native process and pass it your script (stored in a temporary file).
 Script bindings should be accessible as environment variables.
-
-To do
------
-
-Implements Invocable
-Test corner cases (large script, large output)
-If script is two large, you might hit "Argument list too long" => for this case, the script should be stored in a temporary file or inject in bash input with -s option
