@@ -29,4 +29,9 @@ public class Bash implements NativeShell {
     public ScriptEngineFactory getScriptEngineFactory() {
         return new BashScriptEngineFactory();
     }
+
+    @Override
+    public String getFileExtension() {
+        return ".sh";
+    }
 }

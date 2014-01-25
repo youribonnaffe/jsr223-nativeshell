@@ -99,9 +99,9 @@ public class NativeShellRunner {
         });
     }
 
-    private static File commandAsTemporaryFile(String command) {
+    private File commandAsTemporaryFile(String command) {
         try {
-            File commandAsFile = File.createTempFile("jsr223nativeshell-", ".sh");
+            File commandAsFile = File.createTempFile("jsr223nativeshell-", nativeShell.getFileExtension());
             IOUtils.writeStringToFile(command, commandAsFile);
             return commandAsFile;
         } catch (IOException e) {

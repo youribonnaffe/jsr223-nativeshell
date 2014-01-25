@@ -13,4 +13,6 @@ public interface NativeShell {
     public String getMajorVersionCommand();
 
     ScriptEngineFactory getScriptEngineFactory();
+
+    String getFileExtension();
 }

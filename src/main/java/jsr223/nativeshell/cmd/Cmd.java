@@ -8,11 +8,11 @@ import java.io.File;
 public class Cmd implements NativeShell {
 
     public ProcessBuilder createProcess(File commandAsFile) {
-        return new ProcessBuilder("cmd", commandAsFile.getAbsolutePath());
+        return new ProcessBuilder("cmd", "/q", "/c", commandAsFile.getAbsolutePath());
     }
 
     public ProcessBuilder createProcess(String command) {
-        return new ProcessBuilder("cmd", "/C", command);
+        return new ProcessBuilder("cmd", "/c", command);
     }
 
     @Override
@@ -28,6 +28,11 @@ public class Cmd implements NativeShell {
     @Override
     public ScriptEngineFactory getScriptEngineFactory() {
         return new CmdScriptEngineFactory();
+    }
+
+    @Override
+    public String getFileExtension() {
+        return ".bat";
     }
 
 }
