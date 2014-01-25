@@ -3,6 +3,8 @@ package jsr223.bash;
 import jsr223.IOUtils;
 
 import javax.script.Bindings;
+import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.Map;
 
@@ -32,7 +34,8 @@ public class Bash {
     }
 
     public static BashCommand run(String command, Bindings bindings) {
-        ProcessBuilder processBuilder = createBashProcess(command);
+        File commandAsTemporaryFile = commandAsTemporaryFile(command);
+        ProcessBuilder processBuilder = createBashProcess(commandAsTemporaryFile);
 
         processBuilder.redirectOutput(Bash.redirectOutput);
         processBuilder.redirectError(Bash.redirectErr);
@@ -42,7 +45,23 @@ public class Bash {
             environment.put(binding.getKey(), binding.getValue().toString());
         }
 
-        return run(processBuilder);
+        BashCommand bashCommand = run(processBuilder);
+        commandAsTemporaryFile.delete();
+        return bashCommand;
+    }
+
+    private static File commandAsTemporaryFile(String command) {
+        try {
+            File commandAsFile = File.createTempFile("jsr223bash-", ".sh");
+            IOUtils.writeStringToFile(command, commandAsFile);
+            return commandAsFile;
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private static ProcessBuilder createBashProcess(File commandAsFile) {
+        return new ProcessBuilder("bash", commandAsFile.getAbsolutePath());
     }
 
     private static ProcessBuilder createBashProcess(String command) {

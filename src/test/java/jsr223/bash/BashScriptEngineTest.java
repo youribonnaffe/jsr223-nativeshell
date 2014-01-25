@@ -39,7 +39,7 @@ public class BashScriptEngineTest {
 
         assertNotNull(returnCode);
         assertNotEquals(Bash.RETURN_CODE_OK, returnCode);
-        assertEquals("bash: nonexistingcommandwhatsoever: command not found\n", outputEater.getErr());
+        assertTrue(outputEater.getErr().contains("nonexistingcommandwhatsoever: command not found\n"));
     }
 
     @Test
@@ -97,13 +97,12 @@ public class BashScriptEngineTest {
         assertTrue(outputEater.getOut().contains("10000"));
     }
 
-    @Ignore("slow")
     @Test
     public void evaluate_large_script() throws Exception {
         ScriptEngine bashScriptEngine = new BashScriptEngine();
 
         String largeScript = "";
-        for (int i = 0; i < 5000; i++) {
+        for (int i = 0; i < 10000; i++) {
             largeScript += "echo aString" + i + "\n";
         }
 
