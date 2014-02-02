@@ -12,6 +12,10 @@ import javax.script.SimpleScriptContext;
 import java.io.StringReader;
 import java.io.StringWriter;
 
+import static java.util.Arrays.asList;
+import static java.util.Collections.emptyList;
+import static java.util.Collections.emptyMap;
+import static java.util.Collections.singletonMap;
 import static org.junit.Assert.*;
 import static org.junit.Assume.assumeTrue;
 
@@ -70,6 +74,42 @@ public class BashScriptEngineTest {
 
         assertEquals(NativeShellRunner.RETURN_CODE_OK, returnCode);
         assertEquals("aString 42 42.0\n", scriptOutput.toString());
+    }
+
+    @Test
+    public void evaluate_use_bindings_arrays() throws Exception {
+        scriptEngine.put("array", new String[]{"oneString", "anotherString", "thenAString"});
+        scriptEngine.put("array_empty", new String[0]);
+        scriptEngine.put("array_nulls", new String[]{null, null});
+
+        Integer returnCode = (Integer) scriptEngine.eval("echo $array_0 $array_1 $array_2 $array_empty_0 $array_nulls_0");
+
+        assertEquals(NativeShellRunner.RETURN_CODE_OK, returnCode);
+        assertEquals("oneString anotherString thenAString\n", scriptOutput.toString());
+    }
+
+    @Test
+    public void evaluate_use_bindings_lists() throws Exception {
+        scriptEngine.put("list", asList("oneString", "anotherString", "thenAString"));
+        scriptEngine.put("list_empty", emptyList());
+        scriptEngine.put("list_nulls", asList(null, null));
+
+        Integer returnCode = (Integer) scriptEngine.eval("echo $list_0 $list_1 $list_2 $list_empty_0 $list_nulls_0");
+
+        assertEquals(NativeShellRunner.RETURN_CODE_OK, returnCode);
+        assertEquals("oneString anotherString thenAString\n", scriptOutput.toString());
+    }
+
+    @Test
+    public void evaluate_use_bindings_maps() throws Exception {
+        scriptEngine.put("map", singletonMap("key", "value"));
+        scriptEngine.put("map_empty", emptyMap());
+        scriptEngine.put("map_nulls", singletonMap("key", null));
+
+        Integer returnCode = (Integer) scriptEngine.eval("echo $map_key $map_empty_key $map_nulls_key");
+
+        assertEquals(NativeShellRunner.RETURN_CODE_OK, returnCode);
+        assertEquals("value\n", scriptOutput.toString());
     }
 
     @Test

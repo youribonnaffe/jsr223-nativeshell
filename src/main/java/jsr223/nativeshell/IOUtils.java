@@ -24,4 +24,15 @@ public class IOUtils {
         out.print(string);
         out.close();
     }
+
+    public static void pipe(Reader from, Writer to) throws IOException {
+            char[] buff = new char[1024];
+            int n = from.read(buff);
+            while (n != -1) {
+                to.write(buff, 0, n);
+                to.flush();
+                n = from.read(buff);
+            }
+            from.close();
+    }
 }

@@ -2,7 +2,10 @@ package jsr223.nativeshell;
 
 import javax.script.ScriptContext;
 import java.io.*;
+import java.util.Collection;
 import java.util.Map;
+
+import static jsr223.nativeshell.IOUtils.pipe;
 
 public class NativeShellRunner {
 
@@ -74,7 +77,35 @@ public class NativeShellRunner {
     private void addBindingsAsEnvironmentVariables(ScriptContext scriptContext, ProcessBuilder processBuilder) {
         Map<String, String> environment = processBuilder.environment();
         for (Map.Entry<String, Object> binding : scriptContext.getBindings(ScriptContext.ENGINE_SCOPE).entrySet()) {
-            environment.put(binding.getKey(), binding.getValue().toString());
+            String bindingKey = binding.getKey();
+            Object bindingValue = binding.getValue();
+
+            if (bindingValue instanceof Object[]) {
+                addArrayBindingAsEnvironmentVariable(bindingKey, (Object[]) bindingValue, environment);
+            } else if (bindingValue instanceof Collection) {
+                addCollectionBindingAsEnvironmentVariable(bindingKey, (Collection) bindingValue, environment);
+            } else if (bindingValue instanceof Map) {
+                addMapBindingAsEnvironmentVariable(bindingKey, (Map<?, ?>) bindingValue, environment);
+            } else {
+                environment.put(bindingKey, bindingValue.toString());
+            }
+        }
+    }
+
+    private void addMapBindingAsEnvironmentVariable(String bindingKey, Map<?, ?> bindingValue, Map<String, String> environment) {
+        for (Map.Entry<?, ?> entry : ((Map<?, ?>) bindingValue).entrySet()) {
+            environment.put(bindingKey + "_" + entry.getKey(), (entry.getValue() == null ? "" : entry.getValue().toString()));
+        }
+    }
+
+    private void addCollectionBindingAsEnvironmentVariable(String bindingKey, Collection bindingValue, Map<String, String> environment) {
+        Object[] bindingValueAsArray = bindingValue.toArray();
+        addArrayBindingAsEnvironmentVariable(bindingKey, bindingValueAsArray, environment);
+    }
+
+    private void addArrayBindingAsEnvironmentVariable(String bindingKey, Object[] bindingValue, Map<String, String> environment) {
+        for (int i = 0; i < bindingValue.length; i++) {
+            environment.put(bindingKey + "_" + i, (bindingValue[i] == null ? "" : bindingValue[i].toString()));
         }
     }
 
@@ -82,17 +113,8 @@ public class NativeShellRunner {
         return new Thread(new Runnable() {
             @Override
             public void run() {
-                BufferedReader reader = new BufferedReader(new InputStreamReader(processOutput));
                 try {
-                    char[] buff = new char[1024];
-                    int n = reader.read(buff);
-                    while (n != -1) {
-                        BufferedWriter bufferedWriter = new BufferedWriter(contextWriter);
-                        bufferedWriter.write(buff, 0, n);
-                        bufferedWriter.flush();
-                        n = reader.read(buff);
-                    }
-                    reader.close();
+                    pipe(new BufferedReader(new InputStreamReader(processOutput)), new BufferedWriter(contextWriter));
                 } catch (IOException ignored) {
                 }
             }
