@@ -1,8 +1,10 @@
 apply plugin: 'java'
 apply plugin: 'maven'
 
-version = '0.1'
+version = '0.2'
 group = 'jsr223'
+
+sourceCompatibility = 1.6
 
 defaultTasks 'jar'
 
