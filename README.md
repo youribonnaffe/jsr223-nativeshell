@@ -6,6 +6,7 @@ Native shell script engines for Java implementing JSR 223
 
 * Bash: using the name bash or the extensions .bash/.sh
 * Cmd.exe: using the name cmd or the extension .bat
+* Executable: using the name exec
 
 ## Usage
 
@@ -18,11 +19,15 @@ Run gradlew script, it produces a JAR file in build/libs
 ## How it works
 
 It simply runs the shell as a native process and pass it your script (stored in a temporary file).
+For the Executable engine it simply takes the script and run it as a single command using Java ProcessBuilder.
 
 ### Bindings
 
 Script bindings are exported as environment variables using their [toString()](http://docs.oracle.com/javase/7/docs/api/java/lang/Object.html#toString())
  representation and accessible as such in the shells.
+
+For the Executable engine, bindings will also be replaced in the command line (i.e the script).
+For instance, running a script like "echo $var" will execute "echo value" if the binding var=value is defined.
 
 [Collections](http://docs.oracle.com/javase/7/docs/api/java/util/Collection.html) and arrays elements are exported with
 the name of the binding suffixed with an underscore and the index of the element.
