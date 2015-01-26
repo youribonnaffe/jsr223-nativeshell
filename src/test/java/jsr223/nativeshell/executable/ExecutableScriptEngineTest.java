@@ -1,16 +1,16 @@
 package jsr223.nativeshell.executable;
 
-import org.junit.Before;
-import org.junit.Test;
+import java.io.StringWriter;
 
 import javax.script.Bindings;
 import javax.script.ScriptException;
-import java.io.StringWriter;
+
+import org.junit.Before;
+import org.junit.Test;
 
 import static java.util.Collections.singletonList;
 import static java.util.Collections.singletonMap;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.*;
 
 public class ExecutableScriptEngineTest {
 
@@ -59,11 +59,9 @@ public class ExecutableScriptEngineTest {
         scriptEngine.eval("blawhhhhhh");
     }
 
-    @Test
+    @Test(expected = ScriptException.class)
     public void error_returned() throws Exception {
-        Object result = scriptEngine.eval("false");
-
-        assertEquals(1, result);
+        scriptEngine.eval("false");
     }
 
     @Test

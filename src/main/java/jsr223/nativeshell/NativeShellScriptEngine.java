@@ -1,7 +1,13 @@
 package jsr223.nativeshell;
 
-import javax.script.*;
 import java.io.Reader;
+
+import javax.script.AbstractScriptEngine;
+import javax.script.Bindings;
+import javax.script.ScriptContext;
+import javax.script.ScriptEngineFactory;
+import javax.script.ScriptException;
+import javax.script.SimpleBindings;
 
 public class NativeShellScriptEngine extends AbstractScriptEngine {
 
@@ -13,7 +19,11 @@ public class NativeShellScriptEngine extends AbstractScriptEngine {
 
     @Override
     public Object eval(String script, ScriptContext context) throws ScriptException {
-        return new NativeShellRunner(nativeShell).run(script, context);
+        int exitValue = new NativeShellRunner(nativeShell).run(script, context);
+        if (exitValue != 0) {
+            throw new ScriptException("Script failed with exit code " + exitValue);
+        }
+        return exitValue;
     }
 
     @Override

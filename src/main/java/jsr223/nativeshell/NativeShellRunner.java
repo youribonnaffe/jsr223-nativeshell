@@ -1,9 +1,20 @@
 package jsr223.nativeshell;
 
-import javax.script.ScriptContext;
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.Reader;
+import java.io.StringWriter;
+import java.io.Writer;
 import java.util.Collection;
 import java.util.Map;
+
+import javax.script.ScriptContext;
 
 import static jsr223.nativeshell.IOUtils.pipe;
 
@@ -45,28 +56,42 @@ public class NativeShellRunner {
 
         addBindingsAsEnvironmentVariables(scriptContext, processBuilder);
 
-        return run(processBuilder, scriptContext.getWriter(), scriptContext.getErrorWriter());
+        return run(processBuilder, scriptContext.getReader(), scriptContext.getWriter(), scriptContext.getErrorWriter());
     }
 
     private String runAndGetOutput(String command) {
         ProcessBuilder processBuilder = nativeShell.createProcess(command);
         StringWriter processOutput = new StringWriter();
-        run(processBuilder, processOutput, new StringWriter());
+        Reader closedInput = new Reader() {
+            @Override
+            public int read(char[] cbuf, int off, int len) throws IOException {
+                return -1;
+            }
+
+            @Override
+            public void close() throws IOException {
+
+            }
+        };
+        run(processBuilder, closedInput, processOutput, new StringWriter());
         return processOutput.toString();
     }
 
-    private static int run(ProcessBuilder processBuilder, Writer processOutput, Writer processError) {
+    private static int run(ProcessBuilder processBuilder, Reader processInput, Writer processOutput, Writer processError) {
         try {
             final Process process = processBuilder.start();
+            Thread input = writeProcessInput(process.getOutputStream(), processInput);
             Thread output = readProcessOutput(process.getInputStream(), processOutput);
             Thread error = readProcessOutput(process.getErrorStream(), processError);
 
+            input.start();
             output.start();
             error.start();
 
             process.waitFor();
             output.join();
             error.join();
+            input.interrupt(); // TODO better thing to do?
 
             return process.exitValue();
         } catch (Exception e) {
@@ -116,6 +141,22 @@ public class NativeShellRunner {
                 try {
                     pipe(new BufferedReader(new InputStreamReader(processOutput)), new BufferedWriter(contextWriter));
                 } catch (IOException ignored) {
+                }
+            }
+        });
+    }
+
+    private static Thread writeProcessInput(final OutputStream processOutput, final Reader contextWriter) {
+        return new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    pipe(new BufferedReader(contextWriter), new OutputStreamWriter(processOutput));
+                } catch (IOException closed) {
+                    try {
+                        processOutput.close();
+                    } catch (IOException ignored) {
+                    }
                 }
             }
         });

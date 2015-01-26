@@ -1,16 +1,18 @@
 package jsr223.nativeshell.bash;
 
+import java.io.StringReader;
+import java.io.StringWriter;
+
+import javax.script.ScriptContext;
+import javax.script.ScriptException;
+import javax.script.SimpleBindings;
+import javax.script.SimpleScriptContext;
+
 import jsr223.nativeshell.NativeShellRunner;
 import jsr223.nativeshell.NativeShellScriptEngine;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
-
-import javax.script.ScriptContext;
-import javax.script.SimpleBindings;
-import javax.script.SimpleScriptContext;
-import java.io.StringReader;
-import java.io.StringWriter;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
@@ -57,11 +59,12 @@ public class BashScriptEngineTest {
 
     @Test
     public void evaluate_failing_command() throws Exception {
-        Integer returnCode = (Integer) scriptEngine.eval("nonexistingcommandwhatsoever");
-
-        assertNotNull(returnCode);
-        assertNotEquals(NativeShellRunner.RETURN_CODE_OK, returnCode);
-        assertTrue(scriptError.toString().contains("nonexistingcommandwhatsoever: command not found\n"));
+        try {
+            scriptEngine.eval("nonexistingcommandwhatsoever");
+            fail();
+        } catch (ScriptException e) {
+            assertTrue(scriptError.toString().contains("nonexistingcommandwhatsoever: command not found\n"));
+        }
     }
 
     @Test
@@ -116,6 +119,14 @@ public class BashScriptEngineTest {
     public void evaluate_different_calls() throws Exception {
         assertEquals(NativeShellRunner.RETURN_CODE_OK, scriptEngine.eval("echo $string"));
         assertEquals(NativeShellRunner.RETURN_CODE_OK, scriptEngine.eval(new StringReader("echo $string")));
+    }
+
+    @Test
+    public void reading_input() throws Exception {
+        StringReader stringInput = new StringReader("hello\n");
+        scriptEngine.getContext().setReader(stringInput);
+        stringInput.close();
+        assertEquals(NativeShellRunner.RETURN_CODE_OK, scriptEngine.eval("cat"));
     }
 
     @Test

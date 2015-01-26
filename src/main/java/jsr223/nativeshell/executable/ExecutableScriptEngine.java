@@ -1,10 +1,27 @@
 package jsr223.nativeshell.executable;
 
-import jsr223.nativeshell.IOUtils;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.io.Writer;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Map;
+import java.util.Set;
 
-import javax.script.*;
-import java.io.*;
-import java.util.*;
+import javax.script.AbstractScriptEngine;
+import javax.script.Bindings;
+import javax.script.ScriptContext;
+import javax.script.ScriptEngineFactory;
+import javax.script.ScriptException;
+import javax.script.SimpleBindings;
+
+import jsr223.nativeshell.IOUtils;
 
 import static jsr223.nativeshell.IOUtils.pipe;
 
@@ -33,7 +50,11 @@ public class ExecutableScriptEngine extends AbstractScriptEngine {
             output.join();
             error.join();
 
-            return process.exitValue();
+            int exitValue = process.exitValue();
+            if (exitValue != 0) {
+                throw new ScriptException("Command execution failed with exit code " + exitValue);
+            }
+            return exitValue;
         } catch (Exception e) {
             throw new ScriptException(e);
         }
