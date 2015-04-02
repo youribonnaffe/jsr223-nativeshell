@@ -1,12 +1,23 @@
 package jsr223.nativeshell;
 
-import javax.script.ScriptContext;
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.Reader;
+import java.io.StringWriter;
+import java.io.Writer;
 import java.util.Collection;
 import java.util.Map;
 
+import javax.script.ScriptContext;
+
 import static jsr223.nativeshell.IOUtils.pipe;
-import static jsr223.nativeshell.StringUtils.*;
+import static jsr223.nativeshell.StringUtils.toEmptyStringIfNull;
 
 public class NativeShellRunner {
 
