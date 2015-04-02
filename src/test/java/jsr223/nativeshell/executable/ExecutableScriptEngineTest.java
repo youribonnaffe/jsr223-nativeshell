@@ -1,18 +1,20 @@
 package jsr223.nativeshell.executable;
 
+import java.io.IOException;
+import java.io.Reader;
+import java.io.StringReader;
+import java.io.StringWriter;
+
+import javax.script.Bindings;
+import javax.script.ScriptException;
+
 import jsr223.nativeshell.NativeShellRunner;
 import org.junit.Before;
 import org.junit.Test;
 
-import javax.script.Bindings;
-import javax.script.ScriptException;
-import java.io.StringReader;
-import java.io.StringWriter;
-
 import static java.util.Collections.singletonList;
 import static java.util.Collections.singletonMap;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.*;
 
 public class ExecutableScriptEngineTest {
 
@@ -127,5 +129,22 @@ public class ExecutableScriptEngineTest {
         scriptEngine.eval("printenv var", bindings);
 
         assertEquals("foo\n", scriptOutput.toString());
+    }
+
+    @Test
+    public void read_closed_input() throws Exception {
+        Reader closedInput = new Reader() {
+            @Override
+            public int read(char[] cbuf, int off, int len) throws IOException {
+                throw new IOException("closed");
+            }
+
+            @Override
+            public void close() throws IOException {
+
+            }
+        };
+        scriptEngine.getContext().setReader(closedInput);
+        scriptEngine.eval("cat");
     }
 }
