@@ -1,16 +1,18 @@
 package jsr223.nativeshell.executable;
 
-import java.io.StringWriter;
-
-import javax.script.Bindings;
-import javax.script.ScriptException;
-
+import jsr223.nativeshell.NativeShellRunner;
 import org.junit.Before;
 import org.junit.Test;
 
+import javax.script.Bindings;
+import javax.script.ScriptException;
+import java.io.StringReader;
+import java.io.StringWriter;
+
 import static java.util.Collections.singletonList;
 import static java.util.Collections.singletonMap;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 
 public class ExecutableScriptEngineTest {
 
@@ -73,6 +75,16 @@ public class ExecutableScriptEngineTest {
         scriptEngine.eval("echo $var ${another} $not_existing", bindings);
 
         assertEquals("value foo $not_existing\n", scriptOutput.toString());
+    }
+
+    @Test
+    public void null_binding() throws Exception {
+        Bindings bindings = scriptEngine.createBindings();
+        bindings.put("var", null);
+
+        scriptEngine.eval("echo $var", bindings);
+
+        assertEquals("\n", scriptOutput.toString());
     }
 
     @Test

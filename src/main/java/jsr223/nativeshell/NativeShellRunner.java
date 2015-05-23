@@ -1,22 +1,12 @@
 package jsr223.nativeshell;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.io.Reader;
-import java.io.StringWriter;
-import java.io.Writer;
+import javax.script.ScriptContext;
+import java.io.*;
 import java.util.Collection;
 import java.util.Map;
 
-import javax.script.ScriptContext;
-
 import static jsr223.nativeshell.IOUtils.pipe;
+import static jsr223.nativeshell.StringUtils.*;
 
 public class NativeShellRunner {
 
@@ -112,14 +102,14 @@ public class NativeShellRunner {
             } else if (bindingValue instanceof Map) {
                 addMapBindingAsEnvironmentVariable(bindingKey, (Map<?, ?>) bindingValue, environment);
             } else {
-                environment.put(bindingKey, bindingValue.toString());
+                environment.put(bindingKey, toEmptyStringIfNull(binding.getValue()));
             }
         }
     }
 
     private void addMapBindingAsEnvironmentVariable(String bindingKey, Map<?, ?> bindingValue, Map<String, String> environment) {
         for (Map.Entry<?, ?> entry : ((Map<?, ?>) bindingValue).entrySet()) {
-            environment.put(bindingKey + "_" + entry.getKey(), (entry.getValue() == null ? "" : entry.getValue().toString()));
+            environment.put(bindingKey + "_" + entry.getKey(), (entry.getValue() == null ? "" : toEmptyStringIfNull(entry.getValue())));
         }
     }
 
@@ -130,7 +120,7 @@ public class NativeShellRunner {
 
     private void addArrayBindingAsEnvironmentVariable(String bindingKey, Object[] bindingValue, Map<String, String> environment) {
         for (int i = 0; i < bindingValue.length; i++) {
-            environment.put(bindingKey + "_" + i, (bindingValue[i] == null ? "" : bindingValue[i].toString()));
+            environment.put(bindingKey + "_" + i, (bindingValue[i] == null ? "" : toEmptyStringIfNull(bindingValue[i].toString())));
         }
     }
 

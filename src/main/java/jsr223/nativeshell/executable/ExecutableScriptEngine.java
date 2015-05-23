@@ -7,6 +7,7 @@ import java.io.*;
 import java.util.*;
 
 import static jsr223.nativeshell.IOUtils.pipe;
+import static jsr223.nativeshell.StringUtils.toEmptyStringIfNull;
 
 public class ExecutableScriptEngine extends AbstractScriptEngine {
 
@@ -19,7 +20,7 @@ public class ExecutableScriptEngine extends AbstractScriptEngine {
 
             Map<String, String> environment = processBuilder.environment();
             for (Map.Entry<String, Object> binding : scriptContext.getBindings(ScriptContext.ENGINE_SCOPE).entrySet()) {
-                environment.put(binding.getKey(), binding.getValue().toString());
+                environment.put(binding.getKey(), toEmptyStringIfNull(binding.getValue()));
             }
 
             final Process process = processBuilder.start();
@@ -75,10 +76,10 @@ public class ExecutableScriptEngine extends AbstractScriptEngine {
             Object bindingValue = binding.getValue();
 
             if (script.contains("$" + bindingKey)) {
-                script = script.replaceAll("\\$" + bindingKey, bindingValue.toString());
+                script = script.replaceAll("\\$" + bindingKey, toEmptyStringIfNull(bindingValue));
             }
             if (script.contains("${" + bindingKey + "}")) {
-                script = script.replaceAll("\\$\\{" + bindingKey + "\\}", bindingValue.toString());
+                script = script.replaceAll("\\$\\{" + bindingKey + "\\}", toEmptyStringIfNull(bindingValue));
             }
         }
         return script;
@@ -86,7 +87,7 @@ public class ExecutableScriptEngine extends AbstractScriptEngine {
 
     private void addMapBindingAsEnvironmentVariable(String bindingKey, Map<?, ?> bindingValue, Bindings bindings) {
         for (Map.Entry<?, ?> entry : ((Map<?, ?>) bindingValue).entrySet()) {
-            bindings.put(bindingKey + "_" + entry.getKey(), (entry.getValue() == null ? "" : entry.getValue().toString()));
+            bindings.put(bindingKey + "_" + entry.getKey(), (entry.getValue() == null ? "" : toEmptyStringIfNull(entry.getValue())));
         }
     }
 
@@ -97,7 +98,7 @@ public class ExecutableScriptEngine extends AbstractScriptEngine {
 
     private void addArrayBindingAsEnvironmentVariable(String bindingKey, Object[] bindingValue, Bindings bindings) {
         for (int i = 0; i < bindingValue.length; i++) {
-            bindings.put(bindingKey + "_" + i, (bindingValue[i] == null ? "" : bindingValue[i].toString()));
+            bindings.put(bindingKey + "_" + i, (bindingValue[i] == null ? "" : toEmptyStringIfNull(bindingValue[i])));
         }
     }
 
