@@ -1,27 +1,10 @@
 package jsr223.nativeshell.executable;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
-import java.io.Writer;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Map;
-import java.util.Set;
-
-import javax.script.AbstractScriptEngine;
-import javax.script.Bindings;
-import javax.script.ScriptContext;
-import javax.script.ScriptEngineFactory;
-import javax.script.ScriptException;
-import javax.script.SimpleBindings;
-
 import jsr223.nativeshell.IOUtils;
+
+import javax.script.*;
+import java.io.*;
+import java.util.*;
 
 import static jsr223.nativeshell.IOUtils.pipe;
 
@@ -40,15 +23,18 @@ public class ExecutableScriptEngine extends AbstractScriptEngine {
             }
 
             final Process process = processBuilder.start();
+            Thread input = writeProcessInput(process.getOutputStream(), scriptContext.getReader());
             Thread output = readProcessOutput(process.getInputStream(), scriptContext.getWriter());
             Thread error = readProcessOutput(process.getErrorStream(), scriptContext.getErrorWriter());
 
+            input.start();
             output.start();
             error.start();
 
             process.waitFor();
             output.join();
             error.join();
+            input.interrupt();
 
             int exitValue = process.exitValue();
             if (exitValue != 0) {
@@ -122,6 +108,22 @@ public class ExecutableScriptEngine extends AbstractScriptEngine {
                 try {
                     pipe(new BufferedReader(new InputStreamReader(processOutput)), new BufferedWriter(contextWriter));
                 } catch (IOException ignored) {
+                }
+            }
+        });
+    }
+
+    private static Thread writeProcessInput(final OutputStream processOutput, final Reader contextWriter) {
+        return new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    pipe(new BufferedReader(contextWriter), new OutputStreamWriter(processOutput));
+                } catch (IOException closed) {
+                    try {
+                        processOutput.close();
+                    } catch (IOException ignored) {
+                    }
                 }
             }
         });

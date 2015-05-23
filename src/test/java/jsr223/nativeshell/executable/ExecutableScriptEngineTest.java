@@ -76,6 +76,14 @@ public class ExecutableScriptEngineTest {
     }
 
     @Test
+    public void reading_input() throws Exception {
+        StringReader stringInput = new StringReader("hello\n");
+        scriptEngine.getContext().setReader(stringInput);
+        assertEquals(NativeShellRunner.RETURN_CODE_OK, scriptEngine.eval("head -n 1"));
+        assertEquals("hello\n", scriptOutput.toString());
+    }
+
+    @Test
     public void number_bindings() throws Exception {
         Bindings bindings = scriptEngine.createBindings();
         bindings.put("int", 42);
