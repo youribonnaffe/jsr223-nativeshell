@@ -51,14 +51,9 @@ public class BashScriptEngineTest {
         assertEquals("hello", scriptOutput.toString());
     }
 
-    @Test
+    @Test(expected = ScriptException.class)
     public void evaluate_failing_command() throws Exception {
-        try {
-            scriptEngine.eval("nonexistingcommandwhatsoever");
-            fail();
-        } catch (ScriptException e) {
-            assertTrue(scriptError.toString().contains("nonexistingcommandwhatsoever: command not found\n"));
-        }
+        scriptEngine.eval("nonexistingcommandwhatsoever");
     }
 
     @Test
