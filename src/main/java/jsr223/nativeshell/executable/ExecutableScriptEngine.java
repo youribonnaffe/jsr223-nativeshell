@@ -42,10 +42,11 @@ public class ExecutableScriptEngine extends AbstractScriptEngine {
                 throw new ScriptException("Command execution failed with exit code " + exitValue);
             }
             return exitValue;
+        } catch (ScriptException e) {
+            throw e;
         } catch (Exception e) {
             throw new ScriptException(e);
         }
-
     }
 
     private String expandAndReplaceBindings(String script, ScriptContext scriptContext) {
